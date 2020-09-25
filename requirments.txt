@@ -1,0 +1,9 @@
+numpy
+scipy
+moviepy
+functools
+opencv-python
+
+PyQt5
+
+tensorflow
