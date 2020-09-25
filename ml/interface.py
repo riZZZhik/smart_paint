@@ -1,6 +1,17 @@
+# System imports
+import sys
+from glob import glob
+
 # Interface imports
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QCursor
+from PyQt5.QtGui import QPixmap, QImage, QCursor
+from PyQt5.QtWidgets import QApplication, QMainWindow
+
+# Import arrays module
+import numpy as np
+
+# Module imports
+from .photo.utils import is_image
 
 
 class Design(object):
@@ -74,3 +85,72 @@ class Design(object):
         self.setWindowTitle(_translate("Form", "Form"))
         self.download.setText(_translate("Form", "PushButton"))
         QtCore.QMetaObject.connectSlotsByName(self)
+
+
+class Interface(QMainWindow, Design):  # TODO: Class description
+    """Create an interface"""
+    def __init__(self):
+        """Initialize interface parameters"""
+        self.app = QApplication([])
+        super().__init__()
+
+        self.setup_ui()
+        self.setAcceptDrops(True)
+        self.setWindowTitle('Smart Paint')
+
+        self.styleID, self.styles = None, []
+        self.path, self.result = None, None
+
+        self.fill_styles_images()
+        self.show()
+
+        # TODO: ML module
+
+    def stylize(self):
+        """Function to stylize user image using machine learning prediction"""
+        if self.styleID and self.path:
+            self.result = np.zeros((256, 256, 3))  # TODO: ML predict
+
+            shape = self.result.shape
+            self.rightItem.setPixmap(QPixmap(QImage(self.result,
+                                                    shape[1], shape[0], shape[1] * 3, QImage.Format_RGB888)))
+
+    @staticmethod
+    def drag_enter_event(event):
+        """Сhecking if there are elements in the drag"""
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def drop_event(self, event):
+        """Show the dropped image and its stylization
+        :param event: Event module from PyQT5 library"""
+        for _, path in enumerate(event.mimeData().urls()):
+            path = path.toString()[7:]
+            if is_image(path):
+                self.path = path
+                self.leftItem.setPixmap(QPixmap(self.path))
+                self.show()
+            else:
+                print("It is not image, try again")  # TODO: Display it
+
+        self.stylize()
+
+    def style_click(self, style_id):
+        """Show stylized image with the clicked style
+        :param style_id: Id of selected style"""
+        self.styleID = style_id
+        for style in self.styles:
+            style.setStyleSheet("QLabel {border-width: 0;}")
+        self.styles[style_id].setStyleSheet("QLabel {"
+                                            "border-style: solid;"
+                                            "border-width: 3px;"
+                                            "border-color: gray;"
+                                            "}")
+        self.stylize()
+
+
+if __name__ is "__main__":
+    interface = Interface()
+    sys.exit(interface.app.exec())
