@@ -10,6 +10,7 @@ def is_image(filename):
 
 
 def save_img(out_path, img):
+    # TODO: If image pixels are floats 0-1 transform to 0-256 uint8
     img = np.clip(img, 0, 255).astype(np.uint8)
     img = Image.fromarray(img)
     img.save(out_path)
@@ -25,7 +26,7 @@ def scale_img(style_path, style_scale):
     return style_target
 
 
-def get_img(img, img_size=False):
+def get_img(img, img_size=None):
     if type(img) == str:
         img = Image.open(img)
 

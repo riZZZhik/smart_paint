@@ -2,16 +2,14 @@
 import sys
 from glob import glob
 
+# Arrays imports
+import numpy as np
+from .photo.utils import is_image, save_img
+
 # Interface imports
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap, QImage, QCursor
 from PyQt5.QtWidgets import QApplication, QMainWindow
-
-# Import arrays module
-import numpy as np
-
-# Module imports
-from .photo.utils import is_image
 
 
 class Design(object):
@@ -102,7 +100,7 @@ class Interface(QMainWindow, Design):  # TODO: Class description
         self.setup_ui()
         self.fill_styles_images()
 
-        self.download.clicked.connect(lambda x: print("Download please " + str(x)))  # TODO: "Download" click event
+        self.download.clicked.connect(self.save_image)  # TODO: "Download" click event
 
         self.show()
 
@@ -111,14 +109,14 @@ class Interface(QMainWindow, Design):  # TODO: Class description
     def stylize(self):
         """Function to stylize user image using machine learning prediction"""
         if self.path:
-            self.result = np.random.rand(256, 256, 3)  # TODO: ML predict
+            self.result = np.random.randint(255, size=(256, 256, 3), dtype=np.uint8)  # TODO: ML predict
 
             shape = self.result.shape
             self.rightItem.setPixmap(QPixmap(QImage(self.result,
                                                     shape[1], shape[0], shape[1] * 3, QImage.Format_RGB888)))
 
     @staticmethod
-    def dragEnterEvent(event):
+    def dragEnterEvent(event, **kwargs):
         """Сhecking if there are elements in the drag
         :param event: Event module from PyQT5 library
         """
@@ -141,6 +139,14 @@ class Interface(QMainWindow, Design):  # TODO: Class description
                 print("It is not image, try again")  # TODO: Display this
 
         self.stylize()
+
+    def save_image(self, _):
+        """Save stylized image to disk"""
+        out_path = "".join(self.path.split(".")[:-1])
+        out_path += "_result."
+        out_path += self.path.split(".")[-1]
+
+        save_img(out_path, self.result)
 
     def style_click(self, style_id):
         """Show stylized image with the clicked style
@@ -174,6 +180,8 @@ class Interface(QMainWindow, Design):  # TODO: Class description
 
             self.styles.append(style)
             self.midLayout.addWidget(style, pos[0], pos[1])
+
+        self.style_click(0)
 
     def _get_styles_funcs(self, num):
         """Generate click functions for each style
