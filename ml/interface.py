@@ -12,6 +12,7 @@ from PyQt5.QtGui import QPixmap, QImage, QCursor
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 
+# noinspection PyTypeChecker
 class Design(object):
     def __init__(self):
         """Initialize main window design"""
@@ -25,9 +26,7 @@ class Design(object):
         self.rightItem = None
 
     def setup_ui(self):
-        """Setup main user interface
-        :param form: QMainWindow class
-        """
+        """Setup main user interface"""
         # Init main window parameters
         self.setObjectName("Form")
         self.resize(770, 310)
@@ -100,7 +99,7 @@ class Interface(QMainWindow, Design):  # TODO: Class description
         self.setup_ui()
         self.fill_styles_images()
 
-        self.download.clicked.connect(self.save_image)  # TODO: "Download" click event
+        self.download.clicked.connect(self.save_image)
 
         self.show()
 
@@ -118,7 +117,9 @@ class Interface(QMainWindow, Design):  # TODO: Class description
     @staticmethod
     def dragEnterEvent(event, **kwargs):
         """Сhecking if there are elements in the drag
-        :param event: Event module from PyQT5 library
+
+        Args:
+            event (PyQt5.QtGui.QDragEnterEvent): Event module from PyQT5 library
         """
         if event.mimeData().hasUrls():
             event.accept()
@@ -127,9 +128,11 @@ class Interface(QMainWindow, Design):  # TODO: Class description
 
     def dropEvent(self, event):
         """Show the dropped image and its stylization
-        :param event: Event module from PyQT5 library
+
+        Args:
+            event (PyQt5.QtGui.QDropEvent):  Event module from PyQT5 library
         """
-        for _, path in enumerate(event.mimeData().urls()):
+        for path in event.mimeData().urls():
             path = path.toString()[7:]
             if is_image(path):
                 self.path = path
@@ -148,9 +151,11 @@ class Interface(QMainWindow, Design):  # TODO: Class description
 
         save_img(out_path, self.result)
 
-    def style_click(self, style_id):
+    def style_click(self, style_id: int):
         """Show stylized image with the clicked style
-        :param style_id: Id of selected style
+
+        Args:
+            style_id (int): Id of selected style:
         """
         if style_id != self.style_id:
             self.style_id = style_id
@@ -163,9 +168,11 @@ class Interface(QMainWindow, Design):  # TODO: Class description
                                                 "}")
             self.stylize()
 
-    def fill_styles_images(self, styles_dir='styles/'):
+    def fill_styles_images(self, styles_dir: str = 'styles/'):
         """ Fill style images to middle layout
-        :param styles_dir: Directory with style images
+
+        Args:
+            styles_dir (str): Directory with style images
         """
         images_paths = sorted(glob(styles_dir + "*.jpg") + glob(styles_dir + "*.png"))
         images_num = len(images_paths)
@@ -183,9 +190,13 @@ class Interface(QMainWindow, Design):  # TODO: Class description
 
         self.style_click(0)
 
-    def _get_styles_funcs(self, num):
+    def _get_styles_funcs(self, num: int):
         """Generate click functions for each style
-        :param num: number of style images
+
+        Args:
+            num (int): Number of style images
+        Returns:
+            list of style functions
         """
         # style_click = self.style_click
         # for i in range(num):
