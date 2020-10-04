@@ -296,3 +296,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# User ignores
+audio.py
+audio/
+dataset/

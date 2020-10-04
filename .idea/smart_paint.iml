@@ -12,4 +12,11 @@
     <option name="myDocStringFormat" value="Google" />
     <option name="renderExternalDocumentation" value="true" />
   </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/example" />
+      </list>
+    </option>
+  </component>
 </module>
