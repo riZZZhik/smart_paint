@@ -3,11 +3,10 @@ import os
 import time
 
 import numpy as np
-import transform
 import tensorflow as tf
 from loguru import logger
 
-from . import vgg
+from . import vgg, transform
 from .evaluate import ffwd_to_img
 from .utils import image_from_disk, is_image, tensor_size
 
@@ -23,7 +22,7 @@ class SmartPaintTrain:
         self.content_layer = 'relu4_2'
         self.net, self.style_features = self.__build_network(vgg_path, self.style_target, self.style_layers)
 
-        logger.info("Successfully built Smart Paint Training network")
+        logger.info("Successfully built Smart Paint Train network")
 
     @staticmethod
     def __build_network(vgg_path, style_target, style_layers):
@@ -48,7 +47,7 @@ class SmartPaintTrain:
 
         return net, style_features
 
-    def train(self, test_img, test_dir, epochs, batch_size, content_targets, checkpoint_dir, print_iterations,
+    def train(self, test_img, save_test_dir, epochs, batch_size, content_targets, checkpoint_dir, print_iterations=10,
               weights=None, learning_rate=1e-3):
         # Check input variables
         if weights is None:
@@ -59,6 +58,11 @@ class SmartPaintTrain:
             }
         elif not {"content", "style", "tv"}.issubset(set(weights.keys())):
             raise ValueError('Weight dictionary must have "content", "style" and "tv" keys')
+
+        if not os.path.exists(save_test_dir):
+            os.mkdir(save_test_dir)
+        if not os.path.exists(checkpoint_dir):
+            os.mkdir(checkpoint_dir)
 
         if os.path.isdir(content_targets):
             content_targets = [os.path.join(content_targets, image)
@@ -73,12 +77,11 @@ class SmartPaintTrain:
             logger.info('Style: %s, Content:%s, Tv: %s' % (style_loss, content_loss, tv_loss))
 
             # Save evaluation
-            save_path = '%s/%s_%s.png' % (test_dir, epoch, i)
+            save_path = '%s/%s_%s.png' % (save_test_dir, epoch, i)
             ffwd_to_img(test_img, save_path, checkpoint_dir)
 
     def _optimize(self, epochs, batch_size, content_targets, checkpoint_dir,
                   weights, learning_rate, print_iterations):
-
         # Check batch_size
         batch_shape = (batch_size, 256, 256, 3)
         mod = len(content_targets) % batch_size
