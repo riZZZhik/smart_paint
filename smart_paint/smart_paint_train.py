@@ -6,9 +6,10 @@ import numpy as np
 import tensorflow as tf
 from loguru import logger
 
-from . import vgg, transform
+from . import vgg
 from .evaluate import ffwd_to_img
 from .utils import image_from_disk, is_image, tensor_size
+from .transform import transform_net
 
 
 class SmartPaintTrain:
@@ -98,7 +99,7 @@ class SmartPaintTrain:
             content_net = vgg.vgg(self.vgg_path, X_pre)
             content_features[self.content_layer] = content_net[self.content_layer]
 
-            preds = transform.net(X_content / 255.0)
+            preds = transform_net(X_content / 255.0)
             preds_pre = vgg.preprocess(preds)
             net = vgg.vgg(self.vgg_path, preds_pre)
 

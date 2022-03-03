@@ -2,7 +2,7 @@ import tensorflow as tf
 WEIGHTS_INIT_STDEV = .1
 
 
-def net(image):
+def transform_net(image):
     conv1 = _conv_layer(image, 32, 9, 1)
     conv2 = _conv_layer(conv1, 64, 3, 2)
     conv3 = _conv_layer(conv2, 128, 3, 2)

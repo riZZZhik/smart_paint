@@ -9,7 +9,7 @@ def image_from_disk(image_path, image_shape=None):
     if not is_image(image_path):
         raise ValueError('"%s" is not an image' % image_path)
 
-    image = Image.open(image_path)
+    image = Image.open(image_path).convert('RGB')
     if image_shape is not None:
         image = image.resize(image_shape[:2])
     image = np.array(image)
