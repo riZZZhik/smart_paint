@@ -1,0 +1,9 @@
+# Base requirements
+loguru
+
+# Image requirements
+numpy
+Pillow
+
+# ML requirements
+tensorflow
