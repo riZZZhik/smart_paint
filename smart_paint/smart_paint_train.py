@@ -50,7 +50,7 @@ class SmartPaintTrain:
 
     def train(self, test_img, save_test_dir, epochs, batch_size, content_targets, checkpoint_dir, print_iterations=10,
               weights=None, learning_rate=1e-3):
-        # Check input variables
+        # Check weights variable
         if weights is None:
             weights = {
                 'content': 7.5e0,
@@ -60,22 +60,28 @@ class SmartPaintTrain:
         elif not {"content", "style", "tv"}.issubset(set(weights.keys())):
             raise ValueError('Weight dictionary must have "content", "style" and "tv" keys')
 
+        # Create folders if required
         if not os.path.exists(save_test_dir):
             os.mkdir(save_test_dir)
         if not os.path.exists(checkpoint_dir):
             os.mkdir(checkpoint_dir)
 
-        if os.path.isdir(content_targets):
-            content_targets = [os.path.join(content_targets, image)
-                               for image in os.listdir(content_targets) if is_image(image)]
+        # Check content targets
+        if type(content_targets) is str and os.path.isdir(content_targets):
+            content_targets = [os.path.join(content_targets, path)
+                               for path in os.listdir(content_targets) if is_image(path)]
+        elif type(content_targets) in (list, tuple):
+            content_targets = [path for path in content_targets if is_image(path)]
+        else:
+            raise ValueError("Unknown content targets: " + str(content_targets))
 
         # Run training
         for preds, losses, i, epoch in self._optimize(epochs, batch_size, content_targets, checkpoint_dir,
                                                       weights, learning_rate, print_iterations):
             # Log losses
             style_loss, content_loss, tv_loss, loss = losses
-            logger.info('Epoch %d, Iteration: %d, Loss: %s' % (epoch, i, loss))
-            logger.info('Style: %s, Content:%s, Tv: %s' % (style_loss, content_loss, tv_loss))
+            logger.info('Epoch %d, Iteration: %d, Loss: %s Style: %s, Content:%s, Tv: %s' %
+                        (epoch, i, loss, style_loss, content_loss, tv_loss))
 
             # Save evaluation
             save_path = '%s/%s_%s.png' % (save_test_dir, epoch, i)
@@ -134,9 +140,6 @@ class SmartPaintTrain:
             # overall loss
             train_step = tf.compat.v1.train.AdamOptimizer(learning_rate).minimize(loss)
             sess.run(tf.compat.v1.global_variables_initializer())
-            import random
-            uid = random.randint(1, 100)
-            logger.info("UID: %s" % uid)
             for epoch in range(epochs):
                 num_examples = len(content_targets)
                 iterations = 0
