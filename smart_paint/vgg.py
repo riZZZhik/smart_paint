@@ -1,13 +1,11 @@
-# Copyright (c) 2015-2016 Anish Athalye. Released under GPLv3.
-
-import tensorflow as tf
 import numpy as np
 import scipy.io
-import pdb
+import tensorflow as tf
 
-MEAN_PIXEL = np.array([ 123.68 ,  116.779,  103.939])
+MEAN_PIXEL = np.array([123.68, 116.779, 103.939])
 
-def net(data_path, input_image):
+
+def vgg(data_path, input_image):
     layers = (
         'conv1_1', 'relu1_1', 'conv1_2', 'relu1_2', 'pool1',
 
@@ -50,14 +48,14 @@ def net(data_path, input_image):
 
 
 def _conv_layer(input, weights, bias):
-    conv = tf.nn.conv2d(input, tf.constant(weights), strides=(1, 1, 1, 1),
-            padding='SAME')
+    conv = tf.nn.conv2d(input=input, filters=tf.constant(weights), strides=(1, 1, 1, 1),
+                        padding='SAME')
     return tf.nn.bias_add(conv, bias)
 
 
 def _pool_layer(input):
-    return tf.nn.max_pool(input, ksize=(1, 2, 2, 1), strides=(1, 2, 2, 1),
-            padding='SAME')
+    return tf.nn.max_pool2d(input=input, ksize=(1, 2, 2, 1), strides=(1, 2, 2, 1),
+                            padding='SAME')
 
 
 def preprocess(image):

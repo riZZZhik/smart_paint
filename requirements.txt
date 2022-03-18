@@ -1,0 +1,11 @@
+# Base requirements
+loguru
+
+# Image requirements
+numpy
+Pillow
+opencv-python
+
+# ML requirements
+transform
+tensorflow
